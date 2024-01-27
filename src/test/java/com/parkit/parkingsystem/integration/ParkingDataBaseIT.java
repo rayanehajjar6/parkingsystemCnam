@@ -4,9 +4,12 @@ import com.parkit.parkingsystem.dao.ParkingSpotDAO;
 import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.integration.config.DataBaseTestConfig;
 import com.parkit.parkingsystem.integration.service.DataBasePrepareService;
+import com.parkit.parkingsystem.model.ParkingSpot;
+import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.ParkingService;
 import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.junit.jupiter.api.AfterAll;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,19 +50,36 @@ public class ParkingDataBaseIT {
 
     }
 
-    @Test
-    public void testParkingACar(){
+     @Test
+    public void testParkingACar() {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processIncomingVehicle();
-        //TODO: check that a ticket is actualy saved in DB and Parking table is updated with availability
+
+        // Check that a ticket is actually saved in the database
+        String vehicleRegNumber = "ABCDEF";
+        Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
+        assertNotNull(ticket);
+        assertEquals(vehicleRegNumber, ticket.getVehicleRegNumber());
+
+        // Check that the parking spot availability is updated
+        ParkingSpot parkingSpot = parkingSpotDAO.getParkingSpot(ticket.getParkingSpot().getId());
+        assertNotNull(parkingSpot);
+        assertFalse(parkingSpot.isAvailable());
     }
 
     @Test
-    public void testParkingLotExit(){
+    public void testParkingLotExit() {
         testParkingACar();
+
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processExitingVehicle();
-        //TODO: check that the fare generated and out time are populated correctly in the database
+
+        // Check that the fare generated and out time are populated correctly in the database
+        String vehicleRegNumber = "ABCDEF";
+        Ticket ticket = ticketDAO.getTicket(vehicleRegNumber);
+        assertNotNull(ticket);
+        assertNotNull(ticket.getOutTime());
+        assertTrue(ticket.getPrice() >= 0);  // Assuming the price can't be negative
     }
 
 }

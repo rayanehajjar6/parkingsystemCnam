@@ -14,15 +14,22 @@ public class FareCalculatorService {
         long inMinutes = ticket.getInTime().getTime()/1000/60;
         long outMinutes = ticket.getOutTime().getTime()/1000/60;
 
-        //TODO: Some tests are failing here. Need to check if this logic is correct
         long durationm = outMinutes - inMinutes;
         double rate = 1.0;
         int duration = (int) durationm / 60; 
-        if (durationm < 15) {
+        if (durationm <= 30) {
             rate = 0.0;
         } else if (durationm < 60) {
-            rate = 0.75;
+            rate = 0.5;
             duration = 1;
+        } else {
+            durationm -= 30;
+            if (durationm < 60) {
+                rate = 0.5;
+                duration = 1;
+            } else {
+                duration = (int) durationm / 60; 
+            }
         }
 
        
