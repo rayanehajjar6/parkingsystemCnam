@@ -24,6 +24,7 @@ public class FareCalculatorService {
             rate = 0.75;
             duration = 1;
         }
+
        
         switch (ticket.getParkingSpot().getParkingType()){
             case CAR: {
